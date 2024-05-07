@@ -72,12 +72,13 @@ const Triangle = function() {
     gl.validateProgram(program);
 
     let vex = [
-        0.5, 0.5,
-        -0.5, 0.5,
-        -0.5, -0.5,
-        0.5, 0.5,
-        0.5, -0.5,
-        -0.5, -0.5
+        0, 0.0,
+        0.0, 0.5,
+        0.5, 0.1,
+        0.25, -0.4,
+        -0.25, -0.4,
+        -0.5, 0.1,
+        -0.0, 0.5
     ]
 
     let tBuffer = gl.createBuffer();
@@ -96,5 +97,5 @@ const Triangle = function() {
     gl.enableVertexAttribArray(pos);
 
     gl.useProgram(program);
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 7);
 }
