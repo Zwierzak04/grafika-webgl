@@ -18,12 +18,16 @@ const vShaderValue = `
 const fShaderValue = `
     precision mediump float;
 
+    uniform vec3 color;
+
     void main() {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(color, 1.0);
     }
 `;
 
 const bgColor = [0.2, 0.7, 0.5];
+
+let figureColor = [0.0, 0.0, 0.0];
 
 const Triangle = function() {
     if(!gl) {
@@ -98,4 +102,21 @@ const Triangle = function() {
 
     gl.useProgram(program);
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 7);
+
+    let colorAttribute = gl.getUniformLocation(program, 'color');
+    gl.uniform3fv(colorAttribute, figureColor);
+
+    document.querySelector("#changeColor").addEventListener('click', () => {
+        figureColor = [
+            Math.random(),
+            Math.random(),
+            Math.random()
+        ];
+
+        gl.clearColor(...bgColor, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniform3fv(colorAttribute, figureColor);
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, 7);
+    });
 }
