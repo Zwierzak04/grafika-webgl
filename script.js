@@ -75,15 +75,19 @@ const Triangle = function() {
 
     gl.validateProgram(program);
 
-    let vex = [
+    // nie umiem czytać ja przepraszam
+    const sq3 = Math.sqrt(3);
+    const vex = [
         0, 0.0,
-        0.0, 0.5,
-        0.5, 0.1,
-        0.25, -0.4,
-        -0.25, -0.4,
-        -0.5, 0.1,
-        -0.0, 0.5
+        0.25, 0.25*sq3,
+        0.5, 0.0,
+        0.25, -0.25*sq3,
+        -0.25, -0.25*sq3,
+        -0.5, 0.0,
+        -0.25, 0.25*sq3,
+        0.25, 0.25*sq3
     ]
+    const n_vex = vex.length / 2;
 
     let tBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
@@ -101,7 +105,7 @@ const Triangle = function() {
     gl.enableVertexAttribArray(pos);
 
     gl.useProgram(program);
-    gl.drawArrays(gl.TRIANGLE_FAN, 0, 7);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, n_vex);
 
     let colorAttribute = gl.getUniformLocation(program, 'color');
     gl.uniform3fv(colorAttribute, figureColor);
@@ -117,6 +121,6 @@ const Triangle = function() {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniform3fv(colorAttribute, figureColor);
-        gl.drawArrays(gl.TRIANGLE_FAN, 0, 7);
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, n_vex);
     });
 }
