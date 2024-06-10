@@ -27,7 +27,6 @@ const fShaderValue = `
     precision mediump float;
 
     uniform vec3 color;
-
     varying vec3 vColor;
 
     void main() {
@@ -201,14 +200,28 @@ const Triangle = function() {
     let uView = gl.getUniformLocation(program, 'view');
     let uProj = gl.getUniformLocation(program, 'proj');
 
-    mat4.lookAt(view, [0,0,-10], [0,0,0], [0,1,0]);
     mat4.perspective(proj, glMatrix.glMatrix.toRadian(70), canva.width / canva.height, 0.1, 1000.0);
 
     gl.uniformMatrix4fv(uView, gl.FALSE, view);
     gl.uniformMatrix4fv(uProj, gl.FALSE, proj);
     gl.uniformMatrix4fv(uWorld, gl.FALSE, world);
 
-    gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
+    let keys = {
+        w: false,
+        a: false,
+        s: false,
+        d: false
+    };
+    document.addEventListener('keydown', (e) => {
+        if(e.key in keys) {
+            keys[e.key] = true;
+        }
+    });
+    document.addEventListener('keyup', (e) => {
+        if(e.key in keys) {
+            keys[e.key] = false;
+        }
+    });
 
     document.querySelector("#changeColor").addEventListener('click', () => {
         let newColors = defaultCube.colors.slice();
@@ -218,12 +231,45 @@ const Triangle = function() {
             v[2] = Math.random();
         });
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newColors), gl.STATIC_DRAW);
+    });
+
+    let camera = {
+        position:    vec3.fromValues(0, 0, -10),  // pozycja
+        lookAt:      vec3.fromValues(0, 0, 0),   // punkt patrzenia
+        speed:       1,            // szybkość poruszania
+    };
+
+    let last_time = performance.now();
+    let animationLoop = () => {
+        let t = performance.now();
+        let deltaT = t - last_time;
+        last_time = t;
+
+        let speed = camera.speed * deltaT / 60;
+
+        let forward = 0;
+        if (keys.w) forward += speed;
+        if (keys.s) forward -= speed;
+
+        let right = 0;
+        if (keys.d) right -= speed;
+        if (keys.a) right += speed;
+
+        let movement = vec3.fromValues(right, 0, forward);
+
+        vec3.add(camera.position, camera.position, movement);
+        vec3.add(camera.lookAt, camera.lookAt, movement);
+
+        mat4.lookAt(view, camera.position, camera.lookAt, [0,1,0]);
+        gl.uniformMatrix4fv(uView, gl.FALSE, view);
+
         gl.clearColor(...bgColor, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(newColors), gl.STATIC_DRAW);
-
         gl.drawElements(gl.TRIANGLES, cube.indices.length, gl.UNSIGNED_SHORT, 0);
-    });
+        requestAnimationFrame(animationLoop);
+    }
+    requestAnimationFrame(animationLoop);
 }
